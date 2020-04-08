@@ -1,18 +1,16 @@
 # function to generate graph from CSSE COVID-19 data
-# 2020-Apr-6 RCT V1.2
+# 2020-Apr-7 RCT V1.3
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
-from datetime import date
-
-import datetime
+from datetime import date, datetime
 #from matplotlib.dates import (YEARLY, DAILY, DateFormatter, rrulewrapper, RRuleLocator, drange)
 from matplotlib.dates import (DateFormatter, WeekdayLocator, MO, drange, datestr2num)
 
 import numpy as np
 from scipy.optimize import curve_fit
 
-today = date.today()
+today = datetime.now()
 
 # To display interactively, uncomment the following line.
 #matplotlib.interactive('True')
@@ -43,7 +41,7 @@ ax.xaxis.set_major_formatter(formatter)
 loc = WeekdayLocator(byweekday=MO, interval=1)
 ax.xaxis.set_major_locator(loc)
 plt.ylabel('# infections and deaths (n)')
-plt.title(f'US Data and Model for {today.strftime("%Y-%b-%d")}')
+plt.title(f'US Data and Model for {today.strftime("%Y-%b-%d %H:%M:%S")}')
 
 # Calculate Model
 #inf = covid['Infections'].values
@@ -81,7 +79,7 @@ plt.legend()
 plt.grid(linestyle='-', color='lightgrey')
 plt.savefig('covid.png')
 
-print(f'x = {x}')
-print(f'y = {y}')
-print(f'y2 = {y2}')
+#print(f'x = {x}')
+#print(f'y = {y}')
+#print(f'y2 = {y2}')
 
