@@ -1,15 +1,17 @@
 # function to generate graph from CSSE COVID-19 data
-# 2020-Apr-7 RCT V1.3
+# 2020-Apr-10 RCT V1.5
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 from datetime import date, datetime
+
 #from matplotlib.dates import (YEARLY, DAILY, DateFormatter, rrulewrapper, RRuleLocator, drange)
 from matplotlib.dates import (DateFormatter, WeekdayLocator, MO, drange, datestr2num)
 
 import numpy as np
 from scipy.optimize import curve_fit
 
+#today = date.today()
 today = datetime.now()
 
 # To display interactively, uncomment the following line.
@@ -17,11 +19,12 @@ today = datetime.now()
 
 covid_all = pd.read_csv("US_Covid.txt", header=None)
 
-dates = covid_all.iloc[0:1, 43:]
+x0 = 43+28+2
+dates = covid_all.iloc[0:1, x0:]
 tdates = dates.transpose()
 x = datestr2num(tdates[0].values)
 
-covid_data = covid_all.iloc[1:3, 43:]
+covid_data = covid_all.iloc[1:3, x0:]
 covid = covid_data.transpose()
 covid.columns = ['Infections', 'Deaths']
 
@@ -30,10 +33,25 @@ y2 = covid['Deaths'].astype(float).values
 
 fig, ax = plt.subplots()
 
-plt.plot_date(x,y, label='Infections', color='cornflowerblue')
-plt.yscale('log')
+# Add pre-fit data
+pdates = covid_all.iloc[0:1, 4:]
+ptdates = pdates.transpose()
+px = datestr2num(ptdates[0].values)
 
-plt.plot_date(x,y2, label='Deaths', color='red')
+x0_date = tdates[0].values[0]
+x0_str = datetime.strptime(x0_date, '%m/%d/%y').strftime('%Y-%b-%d')
+print(f'x0 = {x0_str}')
+
+pcovid_data = covid_all.iloc[1:3, 4:]
+pcovid = pcovid_data.transpose()
+pcovid.columns = ['Infections', 'Deaths']
+
+py = pcovid['Infections'].astype(float).values
+py2 = pcovid['Deaths'].astype(float).values
+
+plt.plot_date(px,py, label='Infections', color='cornflowerblue', markersize=4)
+plt.plot_date(px,py2, label='Deaths', color='red', markersize=4)
+plt.yscale('log')
 
 formatter = DateFormatter('%b-%d')
 ax.xaxis.set_major_formatter(formatter)
@@ -58,14 +76,15 @@ forward = np.linspace(dlen+1, dlen+ndays, ndays)
 # To compute all values in forward index
 f = lambda x: cf[0][0]*np.exp(cf[0][1]*x)
 FI = f(forward)
-Infections_Model = 'Model Infections(x) = {:.4f}*Exp[{:.4}*(x-x0)]'.format(cf[0][0],cf[0][1])
-plt.text(0.2,0.15,Infections_Model,transform=ax.transAxes, color='cornflowerblue')
+Infections_Model = 'Model Infections(x) = {:.3f}*Exp[{:.4}*(x-x0)]'.format(cf[0][0],cf[0][1])
 
 f2 = lambda x: cf2[0][0]*np.exp(cf2[0][1]*x)
 FD = f2(forward)
 Deaths_Model = 'Model Deaths(x) = {:.4f}*Exp[{:.4}*(x-x0)]'.format(cf2[0][0],cf2[0][1])
-plt.text(0.2,0.1,Deaths_Model,transform=ax.transAxes, color='red')
-plt.text(0.2,0.05,'x = day, x0 = 2020-Mar-1', transform=ax.transAxes, color='grey')
+
+plt.text(0.02,0.67,Infections_Model,transform=ax.transAxes, color='cornflowerblue')
+plt.text(0.02,0.62,Deaths_Model,transform=ax.transAxes, color='red')
+plt.text(0.02,0.57,f'x = day, x0 = {x0_str}', transform=ax.transAxes, color='grey')
 
 ndays = 14
 lastx = x[-1]+1
@@ -77,9 +96,14 @@ plt.plot_date(fx, FD, linestyle='solid', marker='None', label='Model Deaths', co
 plt.legend()
 
 plt.grid(linestyle='-', color='lightgrey')
-plt.savefig('covid.png')
 
 #print(f'x = {x}')
 #print(f'y = {y}')
 #print(f'y2 = {y2}')
 
+fig.set_figheight(5)
+fig.set_figwidth(9)
+
+plt.xticks(rotation='25')
+plt.savefig('covid.png')
+          
