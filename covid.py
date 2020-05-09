@@ -19,7 +19,7 @@ today = datetime.now()
 
 covid_all = pd.read_csv("US_Covid.txt", header=None)
 
-x0 = 43+28+2
+x0 = 43+28+11+11
 dates = covid_all.iloc[0:1, x0:]
 tdates = dates.transpose()
 x = datestr2num(tdates[0].values)
@@ -106,4 +106,3 @@ fig.set_figwidth(9)
 
 plt.xticks(rotation='25')
 plt.savefig('covid.png')
-          
